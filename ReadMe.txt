@@ -10,3 +10,5 @@ remote control 上只需要toggle和keypad 都連上dummy control
 
 目前進度:已完成題目問答動畫
 未完成:完善題目庫、問答題、史萊姆圖片動畫、分數計數、每題限時、音效、boss戰?、如何結束、根據遊戲state接上bulb
+
+requirment module : pygame,mqtt,requests
