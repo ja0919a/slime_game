@@ -18,6 +18,7 @@ class Game:
         self.choice_list = []
         self.forest_img = pygame.transform.scale(setup.forest_img,(setup.forest_img.get_width()*180//setup.forest_img.get_height(),180))
         self.forest_pos = 0
+        self.score = 1
         
     def update(self,data:list):
         if self.state == "start":
@@ -35,10 +36,16 @@ class Game:
         if data[0]==0 or data[0]==1 or data[0]==2:
             self.screen.fill((0,0,0))
             if self.question.reward==1:
-                text = "史萊姆的數量變成"+str(self.choice_list[data[0]].choice_num)+"倍了!"
+                text = "史萊姆們的數量變成"+str(self.choice_list[data[0]].choice_num)+"倍了!"
                 tool.blit_dialog(self.screen,self.unifont_36,[text],(255,255,255),(320,140),center=True,size=(600,100))
             elif self.question.reward==2:
                 text = "史萊姆們增加"+str(self.choice_list[data[0]].choice_num)+"隻同伴了!"
+                tool.blit_dialog(self.screen,self.unifont_36,[text],(255,255,255),(320,140),center=True,size=(600,100))
+            elif self.question.reward==3:
+                text = "史萊姆們減少"+str(self.choice_list[data[0]].choice_num)+"隻同伴了!"
+                tool.blit_dialog(self.screen,self.unifont_36,[text],(255,255,255),(320,140),center=True,size=(600,100))
+            elif self.question.reward==4:
+                text = "史萊姆們的數量剩下"+str(self.choice_list[data[0]].choice_num)+"分之一倍了!"
                 tool.blit_dialog(self.screen,self.unifont_36,[text],(255,255,255),(320,140),center=True,size=(600,100))
             self.state = "animation"
             self.timer = time.time()
