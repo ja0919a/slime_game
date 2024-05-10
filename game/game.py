@@ -18,6 +18,8 @@ class Game:
         self.choice_list = []
         self.forest_img = pygame.transform.scale(setup.forest_img,(setup.forest_img.get_width()*180//setup.forest_img.get_height(),180))
         self.forest_pos = 0
+        self.slime_imgs = [pygame.transform.scale(slime,(40,40)) for slime in setup.slime_imgs]
+        self.slime_list = [[0,320]]#[slime_imgs_id,x]
         self.score = 1
         
     def update(self,data:list):
@@ -32,7 +34,6 @@ class Game:
             self.construct_game()
             self.game([-1])
     def game(self,data):
-        
         if data[0]==0 or data[0]==1 or data[0]==2:
             self.screen.fill((0,0,0))
             if self.question.reward==1:
@@ -66,6 +67,7 @@ class Game:
             self.forest_pos=0
         for i in range(640//self.forest_img.get_width()+2):
             self.screen.blit(self.forest_img,(self.forest_pos+(i-1)*self.forest_img.get_width(),260))
+        
         
 
 game=Game()

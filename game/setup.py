@@ -7,4 +7,6 @@ screen = pygame.display.set_mode((640, 480))
 screen.fill((0,0,0))
 pygame.mouse.set_visible(False)
 fonts_36=tool.load_font("./resource/font", 36)
-forest_img = pygame.image.load("./resource/image/forest.png")
+img_list=tool.load_image("./resource/image")
+forest_img = img_list["forest"]
+slime_imgs = [img_list["slime-"+str(i)] for i in range(1,6)]
