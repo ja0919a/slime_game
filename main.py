@@ -162,11 +162,6 @@ def ExceptionHandler(err):
 
 
 if __name__ == '__main__':
-    tool.blit_text(game.screen,game.unifont_36,"Server : "+ServerURL,(255,255,255),(320,80),True)
-    tool.blit_text(game.screen,game.unifont_36,"Model : "+device_model,(255,255,255),(320,120),True)
-    tool.blit_text(game.screen,game.unifont_36,"Device Name : "+device_name,(255,255,255),(320,160),True)
-    tool.blit_text(game.screen,game.unifont_36,"按Remote Control上任意鍵確認連線",(255,255,255),(320,400),True)
-    tool.blit_text(game.screen,game.unifont_36,"按ESC退出    按F切換全螢幕",(255,255,255),(320,440),True)
     screen = pygame.display.get_surface()
     while True:
         try:
@@ -183,10 +178,19 @@ if __name__ == '__main__':
                 game.state = "game"
                 game.construct_game()
                 game.update([-1])
+
         elif game.state == "game":
             game.backgroud_scroll()
+        elif game.state == "prologue":
+            game.prologue()
+            tool.blit_text(game.screen,game.unifont_36,"Server : "+ServerURL,(255,255,255),(320,80),True)
+            tool.blit_text(game.screen,game.unifont_36,"Model : "+device_model,(255,255,255),(320,120),True)
+            tool.blit_text(game.screen,game.unifont_36,"Device Name : "+device_name,(255,255,255),(320,160),True)
+            tool.blit_text(game.screen,game.unifont_36,"按Remote Control上任意鍵確認連線",(255,255,255),(320,400),True)
+            tool.blit_text(game.screen,game.unifont_36,"按ESC退出    按F切換全螢幕",(255,255,255),(320,440),True)
         screen.fill((0,0,0))
         screen.blit(game.screen,(0,0))
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
