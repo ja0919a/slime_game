@@ -3,13 +3,13 @@ from . import tool, setup, question
 import os
 import time
 import random
-
+import sys
 
 class Game:
     def __init__(self):
         self.screen = pygame.Surface((640,480))
         self.screen.fill((0,0,0))
-        self.state = "start"
+        self.state = "prologue"
         self.unifont_36 = setup.fonts_36["unifont"]
         self.timer=time.time()
         self.question_list = question.question_list
@@ -24,10 +24,11 @@ class Game:
         
     def update(self,data:list):
         if self.state == "start":
+            #self.prologue()
             self.start(data)
         elif self.state == "game":
             self.game(data)
-    
+
     def start(self,data:list):
         if data!=[]:
             self.state = "game"
@@ -51,6 +52,54 @@ class Game:
             self.state = "animation"
             self.timer = time.time()
         
+    def prologue(self):
+        screen = pygame.display.set_mode((640, 480))
+        font = pygame.font.Font("resource/font/unifont.otf", 36)
+        clock = pygame.time.Clock()
+        text_lines = [
+        "這個世界中，存在著各式各樣的魔物",
+        "有的種類人畜無害",
+        "有些成為人們賴以果腹的食物",
+        "有些則以凶殘出名",
+        "而史萊姆就是其中一種攻擊慾低的魔物",
+        "不幸的是，一隻殘暴的惡龍作惡多端",
+        "佔據了住在山谷附近史萊姆一族的家園",
+        "史萊姆們為了奪回家園，向惡龍發起攻勢",
+        "靠著數量的優勢，集結史萊姆大軍",
+        "以打敗惡龍為目標吧！"
+        ]
+        line_index = 0
+        start_time = pygame.time.get_ticks()
+        display_time = 3000
+        show_text = True
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+            self.screen.fill((0, 0, 0))
+            current_time = pygame.time.get_ticks()
+            if show_text:
+                text = font.render(text_lines[line_index], True, (255, 255, 255))
+                text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+                screen.blit(text, text_rect)
+                if current_time - start_time >= display_time:
+                    line_index += 1
+                    start_time = current_time
+                    if line_index >= len(text_lines):
+                        show_text = False
+                        running = False
+            pygame.display.flip()
+            screen.blit(game.screen,(0,0))
+            clock.tick(60)                        
+        game.state = "start"
+            
+
+        print("hfhfhf")
+                    
+
+
     def construct_game(self):
         self.screen.fill((0,0,0))
         question_id=random.randint(0,len(self.question_list)-1)
