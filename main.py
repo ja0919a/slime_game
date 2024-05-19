@@ -172,19 +172,21 @@ if __name__ == '__main__':
         try:
             if DISCONNECT: reconnect(mqttc)
             DF_function_handler()
-            #time.sleep(exec_interval)
+            time.sleep(exec_interval)
         except BaseException as err:
             ExceptionHandler(err)
         pygame.time.Clock().tick(120)
         a=False
         if game.state == "animation":
             game.backgroud_scroll()
+            game.slime_animation()
             if time.time()-game.timer>1:
                 game.state = "game"
                 game.construct_game()
                 game.update([-1])
         elif game.state == "game":
             game.backgroud_scroll()
+            game.slime_animation()
         screen.fill((0,0,0))
         screen.blit(game.screen,(0,0))
         for event in pygame.event.get():

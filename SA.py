@@ -14,7 +14,7 @@ IDF_list = ['Dummy_Sensor']
 ODF_list = ['Dummy_Control']
 device_id = '7tail_game' #if None, device_id = MAC address
 device_name = '7tail_game'
-exec_interval = 1  # IDF/ODF interval
+exec_interval = 0.01  # IDF/ODF interval
 
 
 def on_register(r):
