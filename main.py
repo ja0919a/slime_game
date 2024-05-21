@@ -178,15 +178,44 @@ if __name__ == '__main__':
         pygame.time.Clock().tick(120)
         a=False
         if game.state == "animation":
+            game.animate_board.fill((0,0,0))
             game.backgroud_scroll()
             game.slime_animation()
+            game.blit_animate_board()
             if time.time()-game.timer>1:
-                game.state = "game"
-                game.construct_game()
-                game.update([-1])
+                if game.score<=0:
+                    game.state = "lose"
+                    game.construct_lose()
+                    game.score = 1
+                    game.slime_list = [[0,290,5]]
+                    game.level = 1
+                    game.dragon_hp = 100
+                    game.animate_board_scale = 1
+                else:
+                    game.level+=1
+                    if game.level>game.total_level:
+                        game.state = "boss_entrance"
+                        game.screen.fill((0,0,0))
+                        tool.blit_dialog(game.screen,game.unifont_36,["巨龍出現了!!!"],(255,255,255),(320,140),center=True,size=(600,100))
+                        tool.blit_image(game.screen,game.score_slime_img,(10,440))
+                        tool.blit_text(game.screen,game.unifont_36,str(game.score),(255,255,255),(60,440),center=False)
+                        
+                    else:
+                        game.state = "game"
+                        game.construct_game()
+                        game.update([-1])
         elif game.state == "game":
+            game.animate_board.fill((0,0,0))
             game.backgroud_scroll()
             game.slime_animation()
+            game.blit_animate_board()
+        elif game.state == "boss_entrance":
+            game.animate_board.fill((0,0,0))
+            game.boss_entrance_animation()
+            game.backgroud_scroll()
+            game.slime_animation()
+            game.dragon_animation()
+            game.blit_animate_board()
         screen.fill((0,0,0))
         screen.blit(game.screen,(0,0))
         for event in pygame.event.get():
