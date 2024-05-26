@@ -1,5 +1,5 @@
 class question:
-    def __init__(self, question:list, answer:str, type, reward:int=0):
+    def __init__(self, question:list, answer:str, type, reward:int=0, choice=[]):
         self.question = question
         self.answer = answer 
         self.type = type # 0: 選擇題(無正確答案) answer請填None 1: 選擇題(有正確答案) answer為長度為3的list 2: 填空題

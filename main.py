@@ -168,6 +168,7 @@ if __name__ == '__main__':
     tool.blit_text(game.screen,game.unifont_36,"按Remote Control上任意鍵確認連線",(255,255,255),(320,400),True)
     tool.blit_text(game.screen,game.unifont_36,"按ESC退出    按F切換全螢幕",(255,255,255),(320,440),True)
     screen = pygame.display.get_surface()
+    mouse_timer = time.time()
     while True:
         try:
             if DISCONNECT: reconnect(mqttc)
@@ -181,6 +182,8 @@ if __name__ == '__main__':
             game.animate_board.fill((0,0,0))
             game.backgroud_scroll()
             game.slime_animation()
+            if game.boss_check:
+                game.dragon_animation()
             game.blit_animate_board()
             if time.time()-game.timer>1:
                 if game.score<=0:
@@ -189,11 +192,20 @@ if __name__ == '__main__':
                     game.score = 1
                     game.slime_list = [[0,290,5]]
                     game.level = 1
-                    game.dragon_hp = 100
+                    game.dragon_hp = game.dragon_max_hp
                     game.animate_board_scale = 1
+                    game.back_pack_check = False
+                    game.boss_check = False
+                    game.back_pack_open = False
+                    game.item_list = []
+                    game.item_list_having = []
                 else:
                     game.level+=1
-                    if game.level>game.total_level:
+                    if game.boss_check:
+                        game.state = "boss_game"
+                        game.construct_boss_game()
+                        game.update([-1])
+                    elif game.level>game.total_level:
                         game.state = "boss_entrance"
                         game.screen.fill((0,0,0))
                         tool.blit_dialog(game.screen,game.unifont_36,["巨龍出現了!!!"],(255,255,255),(320,140),center=True,size=(600,100))
@@ -208,6 +220,8 @@ if __name__ == '__main__':
             game.animate_board.fill((0,0,0))
             game.backgroud_scroll()
             game.slime_animation()
+            if game.boss_check:
+                game.dragon_animation()
             game.blit_animate_board()
         elif game.state == "boss_entrance":
             game.animate_board.fill((0,0,0))
@@ -216,8 +230,24 @@ if __name__ == '__main__':
             game.slime_animation()
             game.dragon_animation()
             game.blit_animate_board()
+        elif game.state == "boss_game":
+            game.animate_board.fill((0,0,0))
+            game.backgroud_scroll()
+            game.slime_animation()
+            game.dragon_animation()
+            game.blit_animate_board()
+        elif game.state == "slime_attack":
+            game.animate_board.fill((0,0,0))
+            game.backgroud_scroll()
+            game.dragon_animation()
+            game.slime_attack()
+            game.slime_animation()
+            if not game.win:
+                game.blit_animate_board()
         screen.fill((0,0,0))
         screen.blit(game.screen,(0,0))
+        if time.time()-mouse_timer>3 and pygame.mouse.get_visible():
+            pygame.mouse.set_visible(False)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -235,6 +265,9 @@ if __name__ == '__main__':
                         screen=pygame.display.set_mode((640,480))
                     else:
                         screen=pygame.display.set_mode((640,480),pygame.FULLSCREEN)
+            elif event.type == pygame.MOUSEMOTION:
+                pygame.mouse.set_visible(True)
+                mouse_timer = time.time()
                 
         if a:
             break

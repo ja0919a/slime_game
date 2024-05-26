@@ -100,3 +100,18 @@ def blit_image(screen,img,pos,center=False):
         screen.blit(img,rect.topleft)
     else:
         screen.blit(img,pos)
+def blit_rectangle(screen,color,pos,size,center=False):
+    #顯示矩形
+    #screen:畫布
+    #color:顏色
+    #pos:位置
+    #size:大小
+    #center:是否置中
+    img=pygame.Surface(size)
+    img.fill(color)
+    if center:
+        rect=img.get_rect()
+        rect.center=pos
+        screen.blit(img,rect.topleft)
+    else:
+        screen.blit(img,pos)

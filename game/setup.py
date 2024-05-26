@@ -4,8 +4,9 @@ from . import tool
 
 pygame.init()
 screen = pygame.display.set_mode((640, 480))
+pygame.display.set_caption("Slime Vs Dragon")
+pygame.display.set_icon(pygame.image.load("./resource/image/slime.png"))
 screen.fill((0,0,0))
-pygame.mouse.set_visible(False)
 fonts_36=tool.load_font("./resource/font", 36)
 img_list=tool.load_image("./resource/image")
 forest_img = img_list["forest"]
