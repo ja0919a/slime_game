@@ -188,23 +188,12 @@ if __name__ == '__main__':
             if time.time()-game.timer>1:
                 if game.score<=0:
                     game.state = "lose"
-                    game.construct_lose()
-                    game.score = 1
-                    game.slime_list = [[0,290,5]]
-                    game.level = 1
-                    game.dragon_hp = game.dragon_max_hp
-                    game.animate_board_scale = 1
-                    game.back_pack_check = False
-                    game.boss_check = False
-                    game.back_pack_open = False
-                    game.item_list = []
-                    game.item_list_having = []
                 else:
                     game.level+=1
                     if game.boss_check:
-                        game.state = "boss_game"
-                        game.construct_boss_game()
-                        game.update([-1])
+                        game.state = "boss_attack"
+                        game.boss_attack_timer = time.time()
+                        game.boss_attack()
                     elif game.level>game.total_level:
                         game.state = "boss_entrance"
                         game.screen.fill((0,0,0))
@@ -242,8 +231,42 @@ if __name__ == '__main__':
             game.dragon_animation()
             game.slime_attack()
             game.slime_animation()
-            if not game.win:
-                game.blit_animate_board()
+            game.blit_animate_board()
+        elif game.state == "back_pack_teaching":
+            game.animate_board.fill((0,0,0))
+            game.backgroud_scroll()
+            game.slime_animation()
+            game.dragon_animation()
+            game.blit_animate_board()
+            game.blit_score_boss()
+            game.back_pack_teaching()
+        elif game.state == "start_animate":
+            if time.time()-game.start_timer>3.5:
+                time.sleep(0.5)
+                game.state = "game"
+                game.construct_game()
+                game.game([-1])
+            else:
+                if time.time()-game.start_timer-0.5>=0:
+                    game.screen.fill((0,0,0))
+                    tool.blit_image(game.screen,game.PurpleFox,(320,220),center=True)
+                    tool.blit_text(game.screen,game.unifont_36,"Presented by 7tail_PurpleFox",(255,255,255),(320,440),center=True)
+                    img=pygame.Surface((640,480))
+                    img.fill((0,0,0))
+                    img.set_alpha(abs(300-200*(time.time()-game.start_timer-0.5)))
+                    game.screen.blit(img,(0,0))
+                else:
+                    game.screen.fill((0,0,0))
+        elif game.state == "boss_attack":
+            game.animate_board.fill((0,0,0))
+            game.backgroud_scroll()
+            game.slime_animation()
+            game.boss_attack()
+            game.blit_animate_board()
+        elif game.state == "lose":
+            game.construct_lose()
+        elif game.state == "win":
+            game.construct_win()
         screen.fill((0,0,0))
         screen.blit(game.screen,(0,0))
         if time.time()-mouse_timer>3 and pygame.mouse.get_visible():

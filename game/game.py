@@ -9,6 +9,8 @@ class Game:
     def __init__(self):
         self.screen = pygame.Surface((640,480))
         self.screen.fill((0,0,0))
+        self.PurpleFox = pygame.transform.scale(setup.img_list["7tail_PurpleFox"],(350,setup.img_list["7tail_PurpleFox"].get_height()*350//setup.img_list["7tail_PurpleFox"].get_width()))
+        self.start_timer = time.time()
         self.state = "start"
         self.unifont_36 = setup.fonts_36["unifont"]
         self.timer=time.time()
@@ -24,7 +26,7 @@ class Game:
         self.score_slime_img = pygame.transform.scale(setup.img_list["slime"],(40,40))
         self.slime_timer = time.time()
         self.level = 1
-        self.total_level = 3
+        self.total_level = 10
         self.animate_board=pygame.Surface((1280,360))
         self.animate_board_scale = 1
         self.dragon_imgs = [pygame.transform.scale(dragon,(300,300)) for dragon in setup.dragon_imgs]
@@ -40,7 +42,8 @@ class Game:
         self.back_pack_check = False
         self.back_pack_open = False
         self.back_pack_next_state = "game"
-        self.win=False
+        self.back_pack_teaching_index = 0
+        self.boss_attack_timer = time.time()
         
     def update(self,data:list):
         if self.state == "start":
@@ -48,11 +51,15 @@ class Game:
         elif self.state == "game":
             self.game(data)
         elif self.state == "lose":
-            self.start(data)
+            self.state = "game"
+            self.construct_game()
+            self.game([-1])
         elif self.state == "boss_game":
             self.boss_game(data)
         elif self.state == "win":
-            self.start(data)
+            self.state = "game"
+            self.construct_game()
+            self.game([-1])
         elif self.state == "back_pack":
             if data[0]==9:
                 self.back_pack_open = not self.back_pack_open
@@ -61,12 +68,13 @@ class Game:
                     self.game([-1])
                 elif self.back_pack_next_state == "boss_game":
                     self.boss_game([-1])
+        elif self.state == "back_pack_teaching":
+            self.back_pack_teaching_index+=1
     def start(self,data:list):
         if data!=[]:
-            self.win=False
-            self.state = "game"
-            self.construct_game()
-            self.game([-1])
+            self.screen.fill((0,0,0))
+            self.start_timer = time.time()
+            self.state = "start_animate"
     def game(self,data):
         tool.blit_dialog(self.screen,self.unifont_36,self.question.question,(255,255,255),(320,80),center=True,size=(600,100))
         tool.blit_dialog(self.screen,self.unifont_36,[self.choice_list[1].choice],(255,255,255),(110,200),center=True,size=(180,80))
@@ -92,6 +100,7 @@ class Game:
                 self.score/=float(self.choice_list[data[0]].choice_num)
             self.state = "animation"
             self.timer = time.time()
+            self.update_score()
         elif data[0]==9 and self.back_pack_check:
             self.back_pack_open = not self.back_pack_open
         if self.boss_check:
@@ -143,6 +152,17 @@ class Game:
         self.screen.fill((0,0,0))
         tool.blit_text(self.screen,self.unifont_36,"你輸了",(255,255,255),(320,240),center=True)
         tool.blit_text(self.screen,self.unifont_36,"按Remote Control上任意鍵重新開始",(255,255,255),(320,400),center=True)
+        self.score = 1
+        self.slime_list = [[0,290,5]]
+        self.level = 1
+        self.dragon_hp = self.dragon_max_hp
+        self.animate_board_scale = 1
+        self.back_pack_check = False
+        self.boss_check = False
+        self.back_pack_open = False
+        self.item_list = []
+        self.item_list_having = []
+        self.back_pack_teaching_index = 0
     def boss_entrance_animation(self):
         if self.animate_board_scale<2:
             self.animate_board_scale+=0.01
@@ -191,9 +211,13 @@ class Game:
                 self.boss_accumulate = 0
                 self.slime_attack()
             elif data[0]==0:
-                self.back_pack_check = True
-                self.construct_boss_game()
-                self.update([-1])
+                if not self.back_pack_check:
+                    self.back_pack_check = True
+                    self.state = "back_pack_teaching"
+                    self.back_pack_teaching_index = 0
+                else:
+                    self.construct_boss_game()
+                    self.update([-1])
             elif data[0]==2:
                 self.state = "game"
                 self.construct_game()
@@ -206,22 +230,19 @@ class Game:
             self.back_pack_next_state = "boss_game"
             self.blit_back_pack()
     def blit_score_boss(self):
-        self.score = int(round(self.score,0))
-        self.score = max(0,self.score)
-        while len(self.slime_list)<self.score:
-            self.slime_list.append([random.randint(0,4),random.randint(0,580),random.randint(1,10)])
-        while len(self.slime_list)>self.score:
-            self.slime_list.pop()
-        if len(self.slime_list)>70:
-            self.slime_list = self.slime_list[len(self.slime_list)-70:]
-            self.slime_list[0]=[0,290,5]
         tool.blit_image(self.screen,self.score_slime_img,(10,440))
         tool.blit_text(self.screen,self.unifont_36,str(self.score),(255,255,255),(60,440),center=False)
         tool.blit_dialog(self.screen,self.unifont_36,[""],(255,255,255),(320,458),center=True,size=(200,30),frame_width=2)
         tool.blit_rectangle(self.screen,(255,255,255),(225,448),(190*(self.dragon_hp/self.dragon_max_hp),20),center=False)
         if self.back_pack_check:
-            tool.blit_dialog(self.screen,self.unifont_36,["背包"],(255,255,255),(600,458),center=True,size=(60,30))
+            tool.blit_dialog(self.screen,self.unifont_36,["狀態"],(255,255,255),(600,458),center=True,size=(60,30))
     def blit_score(self):
+        tool.blit_image(self.screen,self.score_slime_img,(10,440))
+        tool.blit_text(self.screen,self.unifont_36,str(self.score),(255,255,255),(60,440),center=False)
+        tool.blit_text(self.screen,self.unifont_36,str(self.level)+"/"+str(self.total_level),(255,255,255),(320,458),center=True)
+        if self.back_pack_check:
+            tool.blit_dialog(self.screen,self.unifont_36,["狀態"],(255,255,255),(600,458),center=True,size=(60,30))
+    def update_score(self):
         self.score = int(round(self.score,0))
         self.score = max(0,self.score)
         while len(self.slime_list)<self.score:
@@ -231,17 +252,12 @@ class Game:
         if len(self.slime_list)>70:
             self.slime_list = self.slime_list[len(self.slime_list)-70:]
             self.slime_list[0]=[0,290,5]
-        tool.blit_image(self.screen,self.score_slime_img,(10,440))
-        tool.blit_text(self.screen,self.unifont_36,str(self.score),(255,255,255),(60,440),center=False)
-        tool.blit_text(self.screen,self.unifont_36,str(self.level)+"/"+str(self.total_level),(255,255,255),(320,458),center=True)
-        if self.back_pack_check:
-            tool.blit_dialog(self.screen,self.unifont_36,["背包"],(255,255,255),(600,458),center=True,size=(60,30))
     def slime_attack(self):
         if self.score<20:
             n=self.score
         else:
             n=20
-        if len(self.slime_attack_list)<n and time.time()-self.slime_attack_timer>0.2:
+        if len(self.slime_attack_list)<n and time.time()-self.slime_attack_timer>0.1:
             self.slime_attack_timer = time.time()
             self.slime_attack_list.append([290,280])
         check = False
@@ -274,22 +290,11 @@ class Game:
             if self.dragon_hp==0:
                 self.state = "win"
                 self.construct_win()
-                self.score = 1
-                self.slime_list = [[0,290,5]]
-                self.level = 1
-                self.dragon_hp = self.dragon_max_hp
-                self.animate_board_scale = 1
-                self.back_pack_check = False
-                self.boss_check = False
-                self.back_pack_open = False
-                self.item_list = []
-                self.item_list_having = []
-                self.win=True
                 
             else:
-                self.state = "boss_game"
-                self.construct_boss_game()
-                self.boss_game([-1])
+                self.state = "boss_attack"
+                self.boss_attack_timer = time.time()
+                self.boss_attack()
     def blit_back_pack(self):
        img=pygame.Surface((640,480))
        img.fill((0,0,0))
@@ -299,4 +304,53 @@ class Game:
         self.screen.fill((0,0,0))
         tool.blit_text(self.screen,self.unifont_36,"你贏了",(255,255,255),(320,240),center=True)
         tool.blit_text(self.screen,self.unifont_36,"按Remote Control上任意鍵重新開始",(255,255,255),(320,400),center=True)
+        self.score = 1
+        self.slime_list = [[0,290,5]]
+        self.level = 1
+        self.dragon_hp = self.dragon_max_hp
+        self.animate_board_scale = 1
+        self.back_pack_check = False
+        self.boss_check = False
+        self.back_pack_open = False
+        self.item_list = []
+        self.item_list_having = []
+        self.back_pack_teaching_index = 0
+    def back_pack_teaching(self):
+        img=pygame.Surface((640,480))
+        img.fill((0,0,0))
+        img.set_alpha(100)
+        self.screen.blit(img,(0,0))
+        if(self.back_pack_teaching_index==0):
+            tool.blit_dialog(self.screen,self.unifont_36,["我是史萊姆博士"],(255,255,255),(320,140),center=True,size=(600,130))
+        elif(self.back_pack_teaching_index==1):
+            tool.blit_dialog(self.screen,self.unifont_36,["我最討厭不會數學的史萊姆了"],(255,255,255),(320,140),center=True,size=(600,130))
+        elif(self.back_pack_teaching_index==2):
+            tool.blit_dialog(self.screen,self.unifont_36,["回答我的問題","答對的話我會送你道具"],(255,255,255),(320,140),center=True,size=(600,130))
+            
+        elif(self.back_pack_teaching_index==3):
+            tool.blit_dialog(self.screen,self.unifont_36,["答錯的話則會給予詛咒"],(255,255,255),(320,140),center=True,size=(600,130))
+        elif(self.back_pack_teaching_index==4):
+            tool.blit_dialog(self.screen,self.unifont_36,["答錯的話則會給予詛咒"],(255,255,255),(320,140),center=True,size=(600,130))
+            tool.blit_dialog(self.screen,self.unifont_36,["不僅如此","我還會當掉你的必修學分"],(255,255,255),(320,430),center=True)
+        elif(self.back_pack_teaching_index==5):
+            tool.blit_dialog(self.screen,self.unifont_36,["按9能查看目前擁有的道具和詛咒"],(255,255,255),(320,140),center=True,size=(600,130))
+            tool.blit_dialog(self.screen,self.unifont_36,["按任意鍵繼續"],(255,255,255),(320,450),center=True)
+        else:
+            self.state = "boss_game"
+            self.construct_boss_game()
+            self.boss_game([-1])
+    def boss_attack(self):
+        if time.time()-self.boss_attack_timer>1:
+            self.state = "boss_game"
+            self.score-=20+self.score//10
+            self.score = max(0,self.score)
+            if self.score==0:
+                self.state = "lose"
+                self.construct_lose()
+            else:
+                self.update_score()
+                self.construct_boss_game()
+                self.boss_game([-1])
+        else:
+            tool.blit_dialog(self.screen,self.unifont_36,["巨龍正在攻擊!"],(255,255,255),(320,140),center=True,size=(600,100))
 game=Game()
