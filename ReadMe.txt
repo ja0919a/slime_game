@@ -8,7 +8,15 @@ question.py題目
 運行main.py開始遊戲
 remote control 上只需要toggle和keypad 都連上dummy control
 
-目前進度:已完成題目問答動畫
-未完成:完善題目庫、問答題、音效、boss戰、根據遊戲state接上bulb、教程、音量設定
+教程
+1 打開https://6.iottalk.tw(如果想換一個可以在SA.py上的ServerURL更改)
+2 進入Project
+3 select project -> add a project
+4 Model -> Remote Control 點選 1 keypad, 1 toggle
+5 Model -> Dummy Device 點選 Dummy Control
+6 將keypad和Dummy Control連線，toggle和Dummy Control連線
+7 打開https://6.iottalk.tw/RemoteControl/+你喜歡的名字(ex : https://6.iottalk.tw/RemoteControl/7tail)
+8 點一下Remote Control，選擇你決定的名字
+9 執行main.py或exe，點一下Dummy Device，選擇7tail_game
 
 requirment module : pygame,mqtt,requests
