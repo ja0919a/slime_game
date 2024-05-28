@@ -12,3 +12,4 @@ img_list=tool.load_image("./resource/image")
 forest_img = img_list["forest"]
 slime_imgs = [img_list["slime-"+str(i)] for i in range(1,6)]
 dragon_imgs = [img_list["dragon-"+str(i)] for i in range(1,5)]
+explode_imgs = [img_list["explode-"+str(i)] for i in range(1,9)]
