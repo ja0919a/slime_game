@@ -330,6 +330,7 @@ if __name__ == '__main__':
             game.screen.fill((0,0,0))
             game.animate_board.fill((0,0,0))
             if time.time()-game.start_timer>6:
+                pygame.mixer.music.play(-1)
                 game.state = "game"
                 game.construct_game()
                 game.game([-1])

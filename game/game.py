@@ -32,7 +32,7 @@ class Game:
         self.dragon_imgs = [pygame.transform.scale(dragon,(300,300)) for dragon in setup.dragon_imgs]
         self.dragon_timer = time.time()
         self.dragon_list = [[0,960,0]]#[dragon_imgs_id,x,y]
-        self.dragon_max_hp = 3000
+        self.dragon_max_hp = 7000
         self.dragon_hp = self.dragon_max_hp
         self.slime_attack_list = []
         self.slime_attack_timer = time.time()
@@ -53,6 +53,11 @@ class Game:
         self.fireball_pos = 0
         self.explode_index=0
         self.rebirth_timer = time.time()
+        self.explode_sound = setup.sound_list["explode"]
+        self.correct_answer1_sound = setup.sound_list["correct_answer1"]
+        self.correct_answer2_sound = setup.sound_list["correct_answer2"]
+        self.wrong_answer1_sound = setup.sound_list["wrong_answer1"]
+        self.wrong_answer2_sound = setup.sound_list["wrong_answer2"]
     def update(self,data:list):
         if self.state == "start":
             self.start(data)
@@ -99,6 +104,7 @@ class Game:
         tool.blit_dialog(self.screen,self.unifont_36,[self.choice_list[0].choice],(255,255,255),(320,200),center=True,size=(180,80))
         tool.blit_dialog(self.screen,self.unifont_36,[self.choice_list[2].choice],(255,255,255),(530,200),center=True,size=(180,80))
         if data[0]==0 or data[0]==1 or data[0]==2:
+            self.correct_answer1_sound.play()
             self.screen.fill((0,0,0))
             if self.question.reward==1:
                 text = "史萊姆們的數量變成"+str(self.choice_list[data[0]].choice_num)+"倍了!"
@@ -220,6 +226,7 @@ class Game:
         tool.blit_dialog(self.screen,self.unifont_36,["救救我","史萊姆博士!"],(255,255,255),(320,200),center=True,size=(180,80))
         tool.blit_dialog(self.screen,self.unifont_36,["增加數量"],(255,255,255),(530,200),center=True,size=(180,80))
         if data[0]==0 or data[0]==1 or data[0]==2:
+            self.correct_answer1_sound.play()
             self.screen.fill((0,0,0))
             if data[0]==1:
                 self.state = "slime_attack"
@@ -269,8 +276,13 @@ class Game:
     def update_score(self):
         self.score = int(round(self.score,0))
         self.score = max(0,self.score)
-        while len(self.slime_list)<self.score:
-            self.slime_list.append([random.randint(0,4),random.randint(0,580),random.randint(1,10)])
+        if len(self.slime_list)<self.score:
+            if self.score>70:
+                self.slime_list = [[random.randint(0,4),random.randint(0,580),random.randint(1,10)] for i in range(70)]
+                self.slime_list[0]=[0,290,5]
+            else:
+                while len(self.slime_list)<self.score:
+                    self.slime_list.append([random.randint(0,4),random.randint(0,580),random.randint(1,10)])
         while len(self.slime_list)>self.score:
             self.slime_list.pop()
         if len(self.slime_list)>70:
@@ -289,6 +301,7 @@ class Game:
             self.slime_attack_list[i][0]+=20
             self.slime_attack_list[i][1]=130/164000*(self.slime_attack_list[i][0]-800)*(self.slime_attack_list[i][0]-800)+20
             if self.slime_attack_list[i][0]==1110:
+                self.wrong_answer2_sound.play()
                 self.boss_accumulate+=1
                 damage=self.score/n
                 for j in range(len(self.item_list)):
@@ -413,6 +426,8 @@ class Game:
         if time.time()-self.boss_attack_timer>0.1 and self.fireball_pos<760:
             self.fireball_pos+=60
             self.boss_attack_timer=time.time()
+            if self.fireball_pos>=760:
+                self.explode_sound.play()
         
         if self.fireball_pos>=760:
             if time.time()-self.boss_attack_timer>0.2 and self.explode_index<8:
@@ -510,6 +525,7 @@ class Game:
         if data[0]==1 or data[0]==2 or data[0]==0:
             ans=self.choice_list.index(self.question.answer)
             if data[0]==ans:
+                self.correct_answer2_sound.play()
                 self.state = "doctor_game_win"
                 temp=[]
                 for i in range(len(self.item_list_having)):
@@ -521,6 +537,7 @@ class Game:
                     self.doctor_game_index=index
                 self.doctor_game_timer = time.time()
             else:
+                self.wrong_answer1_sound.play()
                 self.state = "doctor_game_lose"
                 temp=[]
                 for i in range(len(self.curse_list_having)):
@@ -535,6 +552,8 @@ class Game:
                 self.doctor_game_timer = time.time()
     def blit_doctor_game_win(self):
         if time.time()-self.doctor_game_timer>1.5:
+            self.screen.fill((0,0,0))
+            self.blit_score_boss()
             self.state = "boss_attack"
             self.boss_attack_timer = time.time()
             self.fireball_pos = 0
@@ -551,6 +570,8 @@ class Game:
             tool.blit_dialog(self.screen,self.unifont_36,text,(255,255,255),(320,140),center=True,size=(600,100))
     def blit_doctor_game_lose(self):
         if time.time()-self.doctor_game_timer>1.5:
+            self.screen.fill((0,0,0))
+            self.blit_score_boss()
             self.state = "boss_attack"
             self.boss_attack_timer = time.time()
             self.fireball_pos = 0
@@ -567,6 +588,8 @@ class Game:
             tool.blit_dialog(self.screen,self.unifont_36,text,(255,255,255),(320,140),center=True,size=(600,100))
     def blit_doctor_no_1(self):
         if time.time()-self.doctor_game_timer>1.5:
+            self.screen.fill((0,0,0))
+            self.blit_score_boss()
             self.state = "boss_game"
             self.construct_boss_game()
             self.boss_game([-1])
@@ -581,6 +604,8 @@ class Game:
             tool.blit_dialog(self.screen,self.unifont_36,text,(255,255,255),(320,140),center=True,size=(600,100))
     def blit_doctor_no_2(self):
         if time.time()-self.doctor_game_timer>1.5:
+            self.screen.fill((0,0,0))
+            self.blit_score_boss()
             self.state = "boss_attack"
             self.boss_attack_timer = time.time()
             self.fireball_pos = 0

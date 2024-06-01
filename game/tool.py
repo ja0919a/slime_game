@@ -115,3 +115,14 @@ def blit_rectangle(screen,color,pos,size,center=False):
         screen.blit(img,rect.topleft)
     else:
         screen.blit(img,pos)
+def load_sound(path, accept={"wav","mp3"}):
+    #載入音效
+    #accept:可接受的檔案類型
+    #return:音效物件dict
+    sounds={}
+    for s in os.listdir(path):
+        name, ext = os.path.splitext(s)
+        if ext[1:].lower() in accept:
+            sound=pygame.mixer.Sound(os.path.join(path, s))
+            sounds[name]=sound
+    return sounds
