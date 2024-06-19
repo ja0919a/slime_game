@@ -34,3 +34,4 @@ remote control 上只需要toggle和keypad 都連上dummy control
 
 報告連結 : https://drive.google.com/drive/folders/1CnDZVyg7fv6cCfLDOszII-4aQ6h7gNVk?usp=sharing
 報告影片 : https://youtu.be/YvN7K-56q6k
+github : https://github.com/ja0919a/slime_game
