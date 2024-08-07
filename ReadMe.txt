@@ -1,3 +1,5 @@
+更新:已去掉沒用的Iottalk，只需要pygame並運行main.py或Slime Vs Dragon.exe即可
+
 組長:112550165 洪誥鴻 code
 
 組員:
